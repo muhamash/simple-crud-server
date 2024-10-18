@@ -58,12 +58,45 @@ async function run() {
         {
           res.status( 404 ).send( { deletedCount: 0, message: 'User not found' } );
         }
-      } catch ( error )
+
+        // res.send( result );
+      }
+      catch ( error )
       {
         res.status( 500 ).send( { error: 'Failed to delete user' } );
       }
     } );
 
+
+    // update data
+    app.put( '/users/:id', async ( req, res ) =>
+    {
+      const id = req.params.id;
+      const updatedUser = req.body;
+  
+      try
+      {
+        const query = { _id: new ObjectId( id ) };
+        const updateDoc = {
+          $set: {
+            name: updatedUser.name,
+            email: updatedUser.email,
+          },
+        };
+    
+        const result = await userCollection.updateOne( query, updateDoc );
+        if ( result.matchedCount === 1 )
+        {
+          res.status( 200 ).send( { modifiedCount: result.modifiedCount } );
+        } else
+        {
+          res.status( 404 ).send( { message: 'User not found' } );
+        }
+      } catch ( error )
+      {
+        res.status( 500 ).send( { error: 'Failed to update user' } );
+      }
+    } );
 
 
     // Send a ping to confirm a successful connection
