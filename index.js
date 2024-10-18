@@ -26,8 +26,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Connect to the "insertDB" database and access its "haiku" collection
-    const database = client.db("userDB");
-    const userCollection = database.collection("user");
+    const userCollection = client.db("userDB").collection("user");
 
     app.get( '/users', async ( req, res ) =>
     {
@@ -49,7 +48,7 @@ async function run() {
     app.delete( "/users/:id", async ( req, res ) =>
     {
       const id = req.params.id;
-      console.log( "deleted", new ObjectId(id), id );
+      console.log( "deleted", id );
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne( query );
       res.send( result );
