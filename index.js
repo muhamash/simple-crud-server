@@ -1,5 +1,5 @@
 const express = require( "express" );
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require( "cors" );
 const app = express();
 const port = process.env.PORT || 3000;
@@ -29,12 +29,29 @@ async function run() {
     const database = client.db("userDB");
     const userCollection = database.collection("user");
 
+    app.get( '/users', async ( req, res ) =>
+    {
+      const cursor = userCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+
+    } );
+    
     app.post( '/users', async ( req, res ) =>
     {
       const user = req.body;
       console.log( user, "as new user" );
       // Insert the defined document into the "haiku" collection
       const result = await userCollection.insertOne( user );
+      res.send( result );
+    } );
+
+    app.delete( "/users/:id", async ( req, res ) =>
+    {
+      const id = req.params.id;
+      console.log( "deleted", new ObjectId(id), id );
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne( query );
       res.send( result );
     } );
 
@@ -46,9 +63,8 @@ async function run() {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
-}
-run().catch(console.dir, console.log);
-
+};
+run().catch( console.dir, console.log );
 
 
 app.get( '/', ( req, res ) =>
