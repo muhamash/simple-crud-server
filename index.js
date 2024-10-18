@@ -40,7 +40,6 @@ async function run() {
     {
       const user = req.body;
       console.log( user, "as new user" );
-      // Insert the defined document into the "haiku" collection
       const result = await userCollection.insertOne( user );
       res.send( result );
     } );
@@ -48,11 +47,23 @@ async function run() {
     app.delete( "/users/:id", async ( req, res ) =>
     {
       const id = req.params.id;
-      console.log( "deleted", id );
-      const query = { _id: new ObjectId(id) };
-      const result = await userCollection.deleteOne( query );
-      res.send( result );
+      try
+      {
+        const query = { _id: new ObjectId( id ) };
+        const result = await userCollection.deleteOne( query );
+        if ( result.deletedCount === 1 )
+        {
+          res.status( 200 ).send( { deletedCount: 1 } );
+        } else
+        {
+          res.status( 404 ).send( { deletedCount: 0, message: 'User not found' } );
+        }
+      } catch ( error )
+      {
+        res.status( 500 ).send( { error: 'Failed to delete user' } );
+      }
     } );
+
 
 
     // Send a ping to confirm a successful connection
